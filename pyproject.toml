@@ -1,0 +1,28 @@
+[project]
+name = "shipay-user-svc"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "bcrypt>=5.0.0",
+    "fastapi[standard]>=0.128.0",
+]
+
+[dependency-groups]
+dev = [
+    "ignr>=2.2",
+    "ruff>=0.14.13",
+]
+
+[tool.ruff]
+line-length = 79
+extend-exclude = ["migrations"]  # do not format these folders files
+
+[tool.ruff.lint]
+preview = true
+select = ["I", "F", "E", "W", "PL", "PT"]
+
+[tool.ruff.format]
+preview = true
+quote-style = "single"
