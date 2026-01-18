@@ -1,11 +1,19 @@
-from pydantic import BaseModel, EmailStr
+from typing import Annotated, Optional
+
+from pydantic import BaseModel, BeforeValidator, EmailStr
+
+
+def empty_email_validator(value: str) -> str:
+    if not value:
+        return None
+    return value
 
 
 class UserCreateDTOInput(BaseModel):
     name: str
-    password: str | None = None
     email: EmailStr
-    role_id: int = 1
+    password: Optional[str] = None
+    role_id: Optional[int] = 1
 
 
 class UserDTOOutput(BaseModel):
@@ -13,6 +21,14 @@ class UserDTOOutput(BaseModel):
     name: str
     email: EmailStr
     role_id: int
+
+
+class UserUpdateDTOInput(BaseModel):
+    name: Optional[str] = None
+    email: Annotated[
+        Optional[EmailStr], BeforeValidator(empty_email_validator)
+    ] = None
+    role_id: Optional[int] = None
 
 
 class RoleCreateDTOInput(BaseModel):

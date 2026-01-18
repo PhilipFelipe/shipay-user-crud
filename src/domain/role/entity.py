@@ -1,13 +1,16 @@
+from typing import Optional
+
+
 class Role:
-    def __init__(self, id: int, description: str):
+    def __init__(self, id: Optional[int], description: str):
         self.id = id
         self.description = description
 
-    id: int
     description: str
+    id: Optional[int]
 
 
 class RoleFactory:
     @staticmethod
-    def create_role(id: int, description: str) -> Role:
+    def create(description: str, id: Optional[int] = None) -> Role:
         return Role(id=id, description=description)

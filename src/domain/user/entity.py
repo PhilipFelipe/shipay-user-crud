@@ -8,12 +8,13 @@ class User:
 
     def __init__(
         self,
-        id: Optional[int],
         name: str,
         email: str,
+        id: Optional[int],
         password: Optional[str],
         role_id: int,
     ):
+        # @TODO verificar imeplementação de value object para password aqui
         self.__validate_password(password)
 
         self.id = id
@@ -24,8 +25,9 @@ class User:
 
     name: str
     email: str
-    password: Optional[str]
     role_id: int
+    password: Optional[str]
+    id: Optional[int]
 
     @staticmethod
     def __validate_password(password: Optional[str]) -> None:
@@ -37,10 +39,10 @@ class User:
 
 class UserFactory:
     @staticmethod
-    def create_user(
-        name: str,
-        email: str,
-        role_id: int,
+    def create(
+        name: Optional[str] = None,
+        email: Optional[str] = None,
+        role_id: Optional[int] = None,
         id: Optional[int] = None,
         password: Optional[str] = None,
     ) -> User:
