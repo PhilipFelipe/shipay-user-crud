@@ -5,11 +5,11 @@ with sqlite3.connect('users.db') as conn:
 
     query_create_table_users = """
         CREATE TABLE IF NOT EXISTS users (
-            id int8 PRIMARY KEY,
+            id INTEGER PRIMARY KEY,
             "name" varchar NOT NULL,
             email varchar NOT NULL UNIQUE,
             "password" varchar NOT NULL,
-            role_id int4 NOT NULL,
+            role_id INTEGER NOT NULL,
             created_at date NOT NULL,
             updated_at date NULL,
             FOREIGN KEY (role_id) REFERENCES roles(id)
@@ -17,16 +17,16 @@ with sqlite3.connect('users.db') as conn:
     """
     query_create_table_roles = """
         CREATE TABLE IF NOT EXISTS roles (
-            id int4 PRIMARY KEY,
+            id INTEGER PRIMARY KEY,
             description varchar NOT NULL
         );
     """
 
     cursor.execute(query_create_table_roles)
     cursor.execute(query_create_table_users)
-    cursor.execute('''
+    cursor.execute("""
         INSERT INTO roles (id, description) VALUES (1, "default")
         ON CONFLICT(id) DO NOTHING;
-    ''')
+    """)
     conn.commit()
     print('Tables created successfully.')

@@ -1,4 +1,5 @@
 from src.domain.user.entity import User
+from src.domain.user.exceptions import UserNotFoundException
 from src.ports.user_repo import UserRepo
 from src.utils.password import PasswordHandler
 
@@ -16,4 +17,13 @@ class UserService:
         hash_password = PasswordHandler.hash(password)
         user_data.password = hash_password
 
-        self.user_repository.create_user(**user_data.__dict__)
+        self.user_repository.create_user(user_data)
+
+    def get_all_users(self) -> list[User]:
+        return self.user_repository.get_all_users()
+
+    def get_user_by_id(self, user_id: int) -> User | None:
+        user = self.user_repository.get_user_by_id(user_id)
+        if not user:
+            raise UserNotFoundException()
+        return user

@@ -8,6 +8,13 @@ class UserCreateDTOInput(BaseModel):
     role_id: int = 1
 
 
+class UserDTOOutput(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+    role_id: int
+
+
 class RoleCreateDTOInput(BaseModel):
     name: str
     description: str

@@ -7,10 +7,16 @@ class User:
     __password_minimum_length = 8
 
     def __init__(
-        self, name: str, email: str, password: Optional[str], role_id: int
+        self,
+        id: Optional[int],
+        name: str,
+        email: str,
+        password: Optional[str],
+        role_id: int,
     ):
         self.__validate_password(password)
 
+        self.id = id
         self.name = name
         self.email = email
         self.password = password
@@ -32,6 +38,12 @@ class User:
 class UserFactory:
     @staticmethod
     def create_user(
-        name: str, email: str, password: Optional[str], role_id: int
+        name: str,
+        email: str,
+        role_id: int,
+        id: Optional[int] = None,
+        password: Optional[str] = None,
     ) -> User:
-        return User(name=name, email=email, password=password, role_id=role_id)
+        return User(
+            id=id, name=name, email=email, password=password, role_id=role_id
+        )
