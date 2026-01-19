@@ -1,0 +1,6 @@
+-r requirements.txt
+ignr>=2.2
+pytest>=9.0.2
+pytest-cov>=7.0.0
+ruff>=0.14.13
+taskipy>=1.14.1
