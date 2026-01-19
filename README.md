@@ -36,13 +36,14 @@ pip install -r requirements-dev.txt  # ambiente local
 ```
 
 ## ▶️ Rodar servidor
-
+Ao rodar o servidor, um database users.db é criado com sqlite3.
 ```bash
 # alias do taskpy
 task run
 ```
 
 ## 🧪 Rodar testes
+Rodar os testes cria um database à parte chamado test.db
 ```bash
 task test
 ```
