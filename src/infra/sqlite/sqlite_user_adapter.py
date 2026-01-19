@@ -103,9 +103,17 @@ class SqliteUserAdapter(UserRepo):
         self.db_connection.commit()
         return user
 
-    def user_email_exists(self, email: str) -> bool:
-        query = 'SELECT 1 FROM users WHERE email = ?'
+    def get_user_by_email(self, email: str) -> User | None:
+        query = 'SELECT id, name, email, role_id FROM users WHERE email = ?'
         cursor = self.db_connection.cursor()
         cursor.execute(query, (email,))
         row = cursor.fetchone()
-        return row is not None
+        if not row:
+            return None
+        user = UserFactory.create(
+            id=row[0],
+            name=row[1],
+            email=row[2],
+            role_id=row[3],
+        )
+        return user

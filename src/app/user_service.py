@@ -17,7 +17,7 @@ class UserService(UserUsecases):
         self.role_reposiory = role_reposiory
 
     def create_user(self, user_data: User) -> None:
-        if self.user_repository.user_email_exists(user_data.email):
+        if self.user_repository.get_user_by_email(user_data.email):
             raise UserEmailAlreadyInUseException()
         self.user_repository.create_user(user_data)
 
@@ -37,10 +37,10 @@ class UserService(UserUsecases):
 
     def update_user(self, user_id: int, user_data: User) -> User:
         if user_data.email:
-            existing_user = self.user_repository.user_email_exists(
+            existing_user = self.user_repository.get_user_by_email(
                 user_data.email
             )
-            if existing_user:
+            if existing_user and existing_user.id != user_id:
                 raise UserEmailAlreadyInUseException()
         if user_data.role_id:
             role = self.role_reposiory.get_role_by_id(user_data.role_id)
