@@ -1,5 +1,5 @@
 
-# Shipay User CRUD
+# User CRUD
 
 Uma API REST simples para gerenciar usuários.
 
