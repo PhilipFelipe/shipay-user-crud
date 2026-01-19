@@ -1,7 +1,7 @@
-import sqlite3
 from http import HTTPStatus
 from typing import Annotated, List
 
+import aiosqlite
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.app.user_service import UserService
@@ -22,15 +22,15 @@ from src.infra.sqlite.sqlite_user_adapter import SqliteUserAdapter
 router = APIRouter(prefix='/users')
 
 
-def get_user_service() -> UserService:
-    connection = sqlite3.connect('users.db')
-    user_repo_adapter = SqliteUserAdapter(connection)
-    role_repo_adapter = SqliteRoleAdapter(connection)
-    return UserService(user_repo_adapter, role_repo_adapter)
+async def get_user_service() -> UserService:
+    async with aiosqlite.connect('users.db') as connection:
+        user_repo_adapter = SqliteUserAdapter(connection)
+        role_repo_adapter = SqliteRoleAdapter(connection)
+        yield UserService(user_repo_adapter, role_repo_adapter)
 
 
 @router.post('/', status_code=HTTPStatus.CREATED)
-def create_user(
+async def create_user(
     user: UserCreateDTOInput,
     service: Annotated[UserService, Depends(get_user_service)],
 ):
@@ -41,7 +41,7 @@ def create_user(
             password=user.password,
             role_id=user.role_id,
         )
-        service.create_user(domain_user)
+        await service.create_user(domain_user)
     except UserEmailAlreadyInUseException:
         raise HTTPException(
             status_code=HTTPStatus.CONFLICT, detail='email indisponível'
@@ -58,12 +58,12 @@ def create_user(
 
 
 @router.get('/{user_id}', response_model=UserDTOOutput)
-def get_user(
+async def get_user(
     user_id: int,
     service: Annotated[UserService, Depends(get_user_service)],
 ):
     try:
-        user = service.get_user_by_id(user_id)
+        user = await service.get_user_by_id(user_id)
         return user.__dict__
     except UserNotFoundException:
         raise HTTPException(
@@ -76,11 +76,11 @@ def get_user(
 
 
 @router.get('/', response_model=List[UserDTOOutput])
-def list_users(
+async def list_users(
     service: Annotated[UserService, Depends(get_user_service)],
 ):
     try:
-        users = service.get_all_users()
+        users = await service.get_all_users()
         return [user.__dict__ for user in users]
     except Exception as e:
         raise HTTPException(
@@ -89,12 +89,12 @@ def list_users(
 
 
 @router.delete('/{user_id}', status_code=HTTPStatus.NO_CONTENT)
-def delete_user(
+async def delete_user(
     user_id: int,
     service: Annotated[UserService, Depends(get_user_service)],
 ):
     try:
-        service.delete_user(user_id)
+        await service.delete_user(user_id)
     except UserNotFoundException:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='usuário não encontrado'
@@ -106,7 +106,7 @@ def delete_user(
 
 
 @router.patch('/{user_id}', response_model=UserDTOOutput)
-def update_user(
+async def update_user(
     user_id: int,
     user_update: UserUpdateDTOInput,
     service: Annotated[UserService, Depends(get_user_service)],
@@ -117,7 +117,7 @@ def update_user(
             email=user_update.email,
             role_id=user_update.role_id,
         )
-        updated_user = service.update_user(
+        updated_user = await service.update_user(
             user_id,
             user,
         )

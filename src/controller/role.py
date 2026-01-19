@@ -1,7 +1,7 @@
-import sqlite3
 from http import HTTPStatus
 from typing import Annotated, List
 
+import aiosqlite
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.app.role_service import RoleService
@@ -13,14 +13,14 @@ from src.infra.sqlite.sqlite_role_adapter import SqliteRoleAdapter
 router = APIRouter(prefix='/roles')
 
 
-def get_role_service() -> RoleService:
-    connection = sqlite3.connect('users.db')
-    role_repo_adapter = SqliteRoleAdapter(connection)
-    return RoleService(role_repo_adapter)
+async def get_role_service() -> RoleService:
+    async with aiosqlite.connect('users.db') as connection:
+        role_repo_adapter = SqliteRoleAdapter(connection)
+        yield RoleService(role_repo_adapter)
 
 
 @router.post('/', status_code=HTTPStatus.CREATED)
-def create_role(
+async def create_role(
     role: RoleCreateDTOInput,
     service: Annotated[RoleService, Depends(get_role_service)],
 ):
@@ -28,7 +28,7 @@ def create_role(
         domain_role = RoleFactory.create(
             description=role.description,
         )
-        service.create_role(domain_role)
+        await service.create_role(domain_role)
     except Exception as e:
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(e)
@@ -36,12 +36,12 @@ def create_role(
 
 
 @router.get('/{role_id}', response_model=RoleDTOOutput)
-def get_role(
+async def get_role(
     role_id: int,
     service: Annotated[RoleService, Depends(get_role_service)],
 ):
     try:
-        role = service.get_role_by_id(role_id)
+        role = await service.get_role_by_id(role_id)
         return role.__dict__
     except RoleNotFoundException:
         raise HTTPException(
@@ -54,11 +54,11 @@ def get_role(
 
 
 @router.get('/', response_model=List[RoleDTOOutput])
-def list_roles(
+async def list_roles(
     service: Annotated[RoleService, Depends(get_role_service)],
 ):
     try:
-        roles = service.get_all_roles()
+        roles = await service.get_all_roles()
         return [role.__dict__ for role in roles]
     except Exception as e:
         raise HTTPException(

@@ -16,38 +16,38 @@ class UserService(UserUsecases):
         self.user_repository = user_repository
         self.role_reposiory = role_reposiory
 
-    def create_user(self, user_data: User) -> None:
-        if self.user_repository.get_user_by_email(user_data.email):
+    async def create_user(self, user_data: User) -> None:
+        if await self.user_repository.get_user_by_email(user_data.email):
             raise UserEmailAlreadyInUseException()
-        self.user_repository.create_user(user_data)
+        await self.user_repository.create_user(user_data)
 
-    def get_all_users(self) -> list[User]:
-        return self.user_repository.get_all_users()
+    async def get_all_users(self) -> list[User]:
+        return await self.user_repository.get_all_users()
 
-    def get_user_by_id(self, user_id: int) -> User | None:
-        user = self.user_repository.get_user_by_id(user_id)
+    async def get_user_by_id(self, user_id: int) -> User | None:
+        user = await self.user_repository.get_user_by_id(user_id)
         if not user:
             raise UserNotFoundException()
         return user
 
-    def delete_user(self, user_id: int) -> None:
-        deleted = self.user_repository.delete_user(user_id)
+    async def delete_user(self, user_id: int) -> None:
+        deleted = await self.user_repository.delete_user(user_id)
         if not deleted:
             raise UserNotFoundException()
 
-    def update_user(self, user_id: int, user_data: User) -> User:
+    async def update_user(self, user_id: int, user_data: User) -> User:
         if user_data.email:
-            existing_user = self.user_repository.get_user_by_email(
+            existing_user = await self.user_repository.get_user_by_email(
                 user_data.email
             )
             if existing_user and existing_user.id != user_id:
                 raise UserEmailAlreadyInUseException()
         if user_data.role_id:
-            role = self.role_reposiory.get_role_by_id(user_data.role_id)
+            role = await self.role_reposiory.get_role_by_id(user_data.role_id)
             if not role:
                 raise RoleNotFoundException()
 
-        user = self.user_repository.update_user(user_id, user_data)
+        user = await self.user_repository.update_user(user_id, user_data)
         if not user:
             raise UserNotFoundException()
         return user

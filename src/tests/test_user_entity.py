@@ -5,7 +5,7 @@ from src.domain.user.exceptions import InvalidPasswordLengthException
 from src.utils.password import PasswordHandler
 
 
-def test_user_entity_creation_invalid_password_length():
+async def test_user_entity_creation_invalid_password_length():
     with pytest.raises(InvalidPasswordLengthException):
         UserFactory.create(
             name='John Doe',
@@ -15,7 +15,7 @@ def test_user_entity_creation_invalid_password_length():
         )
 
 
-def test_user_entity_creation_valid_password_length():
+async def test_user_entity_creation_valid_password_length():
     user = UserFactory.create(
         name='Jane Doe',
         email='jane.doe@example.com',
