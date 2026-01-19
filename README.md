@@ -3,6 +3,8 @@
 
 Uma API REST simples para gerenciar usuários.
 
+Este projeto é norteado pelos padrões da arquitetura hexagonal juntamente com princípios do DDD.
+
 ## 🚀 Recursos
 
 - ✅ Criar usuários
