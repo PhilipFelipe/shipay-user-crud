@@ -32,5 +32,9 @@ class UserUpdateDTOInput(BaseModel):
 
 
 class RoleCreateDTOInput(BaseModel):
-    name: str
+    description: str
+
+
+class RoleDTOOutput(BaseModel):
+    id: int
     description: str

@@ -1,6 +1,7 @@
 from typing import Optional
 
 from src.domain.user.exceptions import InvalidPasswordLengthException
+from src.utils.password import PasswordHandler
 
 
 class User:
@@ -14,27 +15,33 @@ class User:
         password: Optional[str],
         role_id: int,
     ):
-        # @TODO verificar imeplementação de value object para password aqui
-        self.__validate_password(password)
+        self.__check_password(password)
 
         self.id = id
         self.name = name
         self.email = email
-        self.password = password
         self.role_id = role_id
 
     name: str
     email: str
     role_id: int
-    password: Optional[str]
     id: Optional[int]
+    _hashed_password: Optional[bytes] = None
 
-    @staticmethod
-    def __validate_password(password: Optional[str]) -> None:
+    @property
+    def password(self) -> bytes:
+        return self._hashed_password
+
+    def __check_password(self, password: Optional[str]) -> None:
         if not password:
+            self._hashed_password = PasswordHandler.hash(
+                PasswordHandler.gen_random_password()
+            )
             return
-        if len(password) < User.__password_minimum_length:
-            raise InvalidPasswordLengthException()
+        if not len(password) < User.__password_minimum_length:
+            self._hashed_password = PasswordHandler.hash(password)
+            return
+        raise InvalidPasswordLengthException()
 
 
 class UserFactory:

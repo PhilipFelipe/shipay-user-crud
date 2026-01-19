@@ -7,7 +7,6 @@ from src.domain.user.exceptions import (
 from src.ports.role_repo import RoleRepo
 from src.ports.user_repo import UserRepo
 from src.ports.user_usecases import UserUsecases
-from src.utils.password import PasswordHandler
 
 
 class UserService(UserUsecases):
@@ -20,15 +19,6 @@ class UserService(UserUsecases):
     def create_user(self, user_data: User) -> None:
         if self.user_repository.user_email_exists(user_data.email):
             raise UserEmailAlreadyInUseException()
-
-        password = (
-            user_data.password
-            if user_data.password
-            else PasswordHandler.gen_random_password()
-        )
-        hash_password = PasswordHandler.hash(password)
-        user_data.password = hash_password
-
         self.user_repository.create_user(user_data)
 
     def get_all_users(self) -> list[User]:

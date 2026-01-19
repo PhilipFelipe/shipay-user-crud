@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from domain.role.entity import Role
+from src.domain.role.entity import Role
 
 
 class RoleUsecases(Protocol):

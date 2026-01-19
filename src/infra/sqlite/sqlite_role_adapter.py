@@ -35,6 +35,7 @@ class SqliteRoleAdapter(RoleRepo):
                 description=row[1],
             )
             roles.append(role)
+
         return roles
 
     def get_role_by_id(self, role_id: int) -> Optional[Role]:

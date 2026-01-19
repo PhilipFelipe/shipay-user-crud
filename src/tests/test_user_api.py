@@ -41,7 +41,7 @@ def setup_db():
 app.dependency_overrides[get_user_service] = override_dependency
 
 
-def test_get_user_by_id(setup_db):
+def test_get_user_by_id_success(setup_db):
     response = client.get('/users/1')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -52,7 +52,7 @@ def test_get_user_by_id(setup_db):
     }
 
 
-def test_get_users(setup_db):
+def test_get_users_success(setup_db):
     response = client.get('/users/')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == [
@@ -77,7 +77,7 @@ def test_get_users(setup_db):
     ]
 
 
-def test_create_user(setup_db):
+def test_create_user_success(setup_db):
     new_user = {
         'name': 'Bob Brown',
         'email': 'bob@email.com',
@@ -88,7 +88,7 @@ def test_create_user(setup_db):
     assert response.status_code == HTTPStatus.CREATED
 
 
-def test_create_user_email_conflict(setup_db):
+def test_create_user_email_conflict_returns_conflict(setup_db):
     new_user = {
         'name': 'Billy',
         'email': 'bob@email.com',
@@ -101,7 +101,7 @@ def test_create_user_email_conflict(setup_db):
     assert response.json() == {'detail': 'email indisponível'}
 
 
-def test_create_user_invalid_password_length(setup_db):
+def test_create_user_invalid_password_length_returns_bad_request(setup_db):
     new_user = {
         'name': 'Carlos',
         'email': 'carlos@email.com',
@@ -116,7 +116,7 @@ def test_create_user_invalid_password_length(setup_db):
     }
 
 
-def test_update_user_email(setup_db):
+def test_update_user_email_success(setup_db):
     user_update = {
         'email': 'teste2@email.com',
     }
@@ -131,14 +131,14 @@ def test_update_user_email(setup_db):
     }
 
 
-def test_update_user_not_found(setup_db):
+def test_update_inexistent_user_returns_not_found(setup_db):
     user_update = {'name': 'Teste Atualizado'}
     response = client.patch('/users/999', json=user_update)
     print(response.json())
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-def test_update_user_email_conflict(setup_db):
+def test_update_user_existing_email_returns_conflict(setup_db):
     user_update = {'email': 'teste2@email.com'}
     response = client.patch('/users/2', json=user_update)
     print(response.json())

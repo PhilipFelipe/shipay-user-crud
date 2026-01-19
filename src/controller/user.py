@@ -75,7 +75,7 @@ def get_user(
         )
 
 
-@router.get('/', response_model=List[UserDTOOutput] | None)
+@router.get('/', response_model=List[UserDTOOutput])
 def list_users(
     service: Annotated[UserService, Depends(get_user_service)],
 ):
