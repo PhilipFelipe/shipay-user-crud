@@ -11,7 +11,7 @@ class User:
         self,
         name: str,
         email: str,
-        id: Optional[int],
+        id: int,
         password: Optional[str],
         role_id: int,
     ):
@@ -25,7 +25,7 @@ class User:
     name: str
     email: str
     role_id: int
-    id: Optional[int]
+    id: int
     _hashed_password: Optional[bytes] = None
 
     @property
@@ -38,7 +38,7 @@ class User:
                 PasswordHandler.gen_random_password()
             )
             return
-        if not len(password) < User.__password_minimum_length:
+        if len(password) >= User.__password_minimum_length:
             self._hashed_password = PasswordHandler.hash(password)
             return
         raise InvalidPasswordLengthException()
@@ -47,10 +47,10 @@ class User:
 class UserFactory:
     @staticmethod
     def create(
-        name: Optional[str] = None,
-        email: Optional[str] = None,
-        role_id: Optional[int] = None,
-        id: Optional[int] = None,
+        name: str,
+        email: str,
+        role_id: int,
+        id: int = 0,
         password: Optional[str] = None,
     ) -> User:
         return User(
