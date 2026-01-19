@@ -1,25 +1,28 @@
-[project]
+[tool.poetry]
 name = "shipay-user-svc"
 version = "0.1.0"
-description = "Add your description here"
+description = "Uma API REST simples para gerenciar usuários"
 readme = "README.md"
-requires-python = ">=3.13"
-dependencies = [
-    "aiosqlite>=0.22.1",
-    "bcrypt>=5.0.0",
-    "fastapi[standard]>=0.128.0",
-]
+packages = [{include = "src"}]
 
-[dependency-groups]
-dev = [
-    "httpx>=0.28.1",
-    "ignr>=2.2",
-    "pytest>=9.0.2",
-    "pytest-asyncio>=1.3.0",
-    "pytest-cov>=7.0.0",
-    "ruff>=0.14.13",
-    "taskipy>=1.14.1",
-]
+[tool.poetry.dependencies]
+python = "^3.13"
+aiosqlite = "^0.22.1"
+bcrypt = "^5.0.0"
+fastapi = {extras = ["standard"], version = "^0.128.0"}
+
+[tool.poetry.group.dev.dependencies]
+httpx = "^0.28.1"
+ignr = "^2.2"
+pytest = "^9.0.2"
+pytest-asyncio = "^1.3.0"
+pytest-cov = "^7.0.0"
+ruff = "^0.14.13"
+taskipy = "^1.14.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 pythonpath = "."
@@ -28,7 +31,7 @@ asyncio_mode = 'auto'
 
 [tool.ruff]
 line-length = 79
-extend-exclude = ["migrations"]  # tells ruff to not format these folder's files
+extend-exclude = ["migrations"]
 
 [tool.ruff.lint]
 preview = true
@@ -40,10 +43,8 @@ quote-style = "single"
 
 [tool.taskipy.tasks]
 run = 'fastapi dev src/main.py'
-
 pre_test = 'task lint'
 test = 'pytest --cov=src -vv'
 post_test = 'coverage html'
-
 lint = 'ruff check . ; ruff check . --diff'
 format = 'ruff check . --fix ; ruff format .'

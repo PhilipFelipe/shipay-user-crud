@@ -15,24 +15,16 @@ Uma API REST simples para gerenciar usuários.
 ## 📋 Pré-requisitos
 
 - python 3.13
-- uv ou pip
+- poetry
 
 ## 🛠️ Instalação
-
+Este projeto utiliza [Poetry](https://python-poetry.org/) para gerenciamento de dependências.
 ```bash
-# Utilizando o "uv"
-uv python install 3.13 
-# vincula a versão do python ao projeto
-uv python pin 3.13 
-# Cria e ativa a venv
-uv venv
-# Instala as dependências do projeto
-uv sync
+# Instale as dependências
+poetry install
 
-# Utilizando pip
-python3.13 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements-dev.txt  # ambiente local
+# Ative o ambiente virtual (opcional, mas recomendado para desenvolvimento)
+poetry shell
 ```
 
 ## ▶️ Rodar servidor
