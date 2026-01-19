@@ -4,9 +4,9 @@ from src.domain.user.exceptions import (
     UserEmailAlreadyInUseException,
     UserNotFoundException,
 )
-from src.ports.role_repo import RoleRepo
-from src.ports.user_repo import UserRepo
-from src.ports.user_usecases import UserUsecases
+from src.ports.role.role_repo import RoleRepo
+from src.ports.user.user_repo import UserRepo
+from src.ports.user.user_usecases import UserUsecases
 
 
 class UserService(UserUsecases):

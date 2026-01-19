@@ -3,7 +3,7 @@ from typing import List, Optional
 from aiosqlite import Connection
 
 from src.domain.user.entity import User, UserFactory
-from src.ports.user_repo import UserRepo
+from src.ports.user.user_repo import UserRepo
 
 
 class SqliteUserAdapter(UserRepo):

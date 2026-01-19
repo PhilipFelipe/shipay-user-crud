@@ -3,7 +3,7 @@ from typing import List, Optional
 from aiosqlite import Connection
 
 from src.domain.role.entity import Role, RoleFactory
-from src.ports.role_repo import RoleRepo
+from src.ports.role.role_repo import RoleRepo
 
 
 class SqliteRoleAdapter(RoleRepo):

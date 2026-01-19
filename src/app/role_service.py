@@ -1,7 +1,7 @@
 from src.domain.role.entity import Role
 from src.domain.role.exceptions import RoleNotFoundException
-from src.ports.role_repo import RoleRepo
-from src.ports.role_usecases import RoleUsecases
+from src.ports.role.role_repo import RoleRepo
+from src.ports.role.role_usecases import RoleUsecases
 
 
 class RoleService(RoleUsecases):
