@@ -10,7 +10,7 @@ def test_create_user_with_existing_email_raises_exception():
     user_repo = Mock()
     role_repo = Mock()
 
-    user_repo.user_email_exists.return_value = True
+    user_repo.get_user_by_email.return_value = True
 
     service = UserService(user_repo, role_repo)
     user = Mock()
