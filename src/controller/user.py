@@ -1,10 +1,11 @@
 from http import HTTPStatus
 from typing import Annotated, List
 
-import aiosqlite
+from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.app.user_service import UserService
+from src.containers import Container
 from src.controller.dto import (
     UserCreateDTOInput,
     UserDTOOutput,
@@ -16,23 +17,15 @@ from src.domain.user.exceptions import (
     UserEmailAlreadyInUseException,
     UserNotFoundException,
 )
-from src.infra.sqlite.sqlite_role_adapter import SqliteRoleAdapter
-from src.infra.sqlite.sqlite_user_adapter import SqliteUserAdapter
 
 router = APIRouter(prefix='/users')
 
 
-async def get_user_service() -> UserService:
-    async with aiosqlite.connect('users.db') as connection:
-        user_repo_adapter = SqliteUserAdapter(connection)
-        role_repo_adapter = SqliteRoleAdapter(connection)
-        yield UserService(user_repo_adapter, role_repo_adapter)
-
-
 @router.post('/', status_code=HTTPStatus.CREATED)
+@inject
 async def create_user(
     user: UserCreateDTOInput,
-    service: Annotated[UserService, Depends(get_user_service)],
+    service: Annotated[UserService, Depends(Provide[Container.user_svc])],
 ):
     try:
         domain_user = UserFactory.create(
@@ -58,9 +51,10 @@ async def create_user(
 
 
 @router.get('/{user_id}', response_model=UserDTOOutput)
+@inject
 async def get_user(
     user_id: int,
-    service: Annotated[UserService, Depends(get_user_service)],
+    service: Annotated[UserService, Depends(Provide[Container.user_svc])],
 ):
     try:
         user = await service.get_user_by_id(user_id)
@@ -76,8 +70,9 @@ async def get_user(
 
 
 @router.get('/', response_model=List[UserDTOOutput])
+@inject
 async def list_users(
-    service: Annotated[UserService, Depends(get_user_service)],
+    service: Annotated[UserService, Depends(Provide[Container.user_svc])],
 ):
     try:
         users = await service.get_all_users()
@@ -89,9 +84,10 @@ async def list_users(
 
 
 @router.delete('/{user_id}', status_code=HTTPStatus.NO_CONTENT)
+@inject
 async def delete_user(
     user_id: int,
-    service: Annotated[UserService, Depends(get_user_service)],
+    service: Annotated[UserService, Depends(Provide[Container.user_svc])],
 ):
     try:
         await service.delete_user(user_id)
@@ -106,10 +102,11 @@ async def delete_user(
 
 
 @router.patch('/{user_id}', response_model=UserDTOOutput)
+@inject
 async def update_user(
     user_id: int,
     user_update: UserUpdateDTOInput,
-    service: Annotated[UserService, Depends(get_user_service)],
+    service: Annotated[UserService, Depends(Provide[Container.user_svc])],
 ):
     try:
         user = UserFactory.create(

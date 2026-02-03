@@ -17,50 +17,54 @@ class SqliteUserAdapter(UserRepo):
             )
             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         """
-        await self.db_connection.execute(
-            query, (user.name, user.email, user.password, user.role_id)
-        )
-        await self.db_connection.commit()
+        async with self.db_connection() as conn:
+            await conn.execute(
+                query, (user.name, user.email, user.password, user.role_id)
+            )
+            await conn.commit()
 
     async def get_all_users(self) -> List[User]:
         query = """
             SELECT id, name, email, role_id FROM users
         """
-        cursor = await self.db_connection.execute(query)
-        rows = await cursor.fetchall()
+        async with self.db_connection() as conn:
+            cursor = await conn.execute(query)
+            rows = await cursor.fetchall()
 
-        users: List[User] = []
-        for row in rows:
+            users: List[User] = []
+            for row in rows:
+                user = UserFactory.create(
+                    id=row[0],
+                    name=row[1],
+                    email=row[2],
+                    role_id=row[3],
+                )
+                users.append(user)
+            return users
+
+    async def get_user_by_id(self, user_id: int) -> Optional[User]:
+        query = """
+            SELECT id, name, email, role_id FROM users WHERE id = ?
+        """
+        async with self.db_connection() as conn:
+            cursor = await conn.execute(query, (user_id,))
+            row = await cursor.fetchone()
+            if not row:
+                return None
             user = UserFactory.create(
                 id=row[0],
                 name=row[1],
                 email=row[2],
                 role_id=row[3],
             )
-            users.append(user)
-        return users
-
-    async def get_user_by_id(self, user_id: int) -> Optional[User]:
-        query = """
-            SELECT id, name, email, role_id FROM users WHERE id = ?
-        """
-        cursor = await self.db_connection.execute(query, (user_id,))
-        row = await cursor.fetchone()
-        if not row:
-            return None
-        user = UserFactory.create(
-            id=row[0],
-            name=row[1],
-            email=row[2],
-            role_id=row[3],
-        )
-        return user
+            return user
 
     async def delete_user(self, user_id: int) -> bool:
         query = 'DELETE FROM users WHERE id = ?'
-        cursor = await self.db_connection.execute(query, (user_id,))
-        await self.db_connection.commit()
-        return not cursor.rowcount == 0
+        async with self.db_connection() as conn:
+            cursor = await conn.execute(query, (user_id,))
+            await conn.commit()
+            return not cursor.rowcount == 0
 
     async def update_user(self, user_id: int, user: User) -> User | None:
         set_clauses = []
@@ -83,32 +87,34 @@ class SqliteUserAdapter(UserRepo):
             WHERE id = ?
             RETURNING id, name, email, role_id
         """
-        cursor = await self.db_connection.execute(
-            query,
-            (*values, user_id),
-        )
-        row = await cursor.fetchone()
-        if not row:
-            return None
-        user = UserFactory.create(
-            id=row[0],
-            name=row[1],
-            email=row[2],
-            role_id=row[3],
-        )
-        await self.db_connection.commit()
-        return user
+        async with self.db_connection() as conn:
+            cursor = await conn.execute(
+                query,
+                (*values, user_id),
+            )
+            row = await cursor.fetchone()
+            if not row:
+                return None
+            user = UserFactory.create(
+                id=row[0],
+                name=row[1],
+                email=row[2],
+                role_id=row[3],
+            )
+            await conn.commit()
+            return user
 
     async def get_user_by_email(self, email: str) -> User | None:
         query = 'SELECT id, name, email, role_id FROM users WHERE email = ?'
-        cursor = await self.db_connection.execute(query, (email,))
-        row = await cursor.fetchone()
-        if not row:
-            return None
-        user = UserFactory.create(
-            id=row[0],
-            name=row[1],
-            email=row[2],
-            role_id=row[3],
-        )
-        return user
+        async with self.db_connection() as conn:
+            cursor = await conn.execute(query, (email,))
+            row = await cursor.fetchone()
+            if not row:
+                return None
+            user = UserFactory.create(
+                id=row[0],
+                name=row[1],
+                email=row[2],
+                role_id=row[3],
+            )
+            return user

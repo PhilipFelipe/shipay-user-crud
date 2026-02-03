@@ -10,6 +10,7 @@ python = "^3.13"
 aiosqlite = "^0.22.1"
 bcrypt = "^5.0.0"
 fastapi = {extras = ["standard"], version = "^0.128.0"}
+dependency-injector = "^4.48.3"
 
 [tool.poetry.group.dev.dependencies]
 httpx = "^0.28.1"

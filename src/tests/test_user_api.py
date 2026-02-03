@@ -2,17 +2,23 @@ from http import HTTPStatus
 
 import aiosqlite
 import pytest_asyncio
+from dependency_injector import providers
 from httpx import ASGITransport, AsyncClient
 
-from src.app.user_service import UserService
-from src.controller.user import get_user_service
-from src.infra.sqlite.sqlite_role_adapter import SqliteRoleAdapter
-from src.infra.sqlite.sqlite_user_adapter import SqliteUserAdapter
+from src.infra.sqlite.db import SqliteDatabase
 from src.main import app
+
+
+class SqliteDatabaseStub(SqliteDatabase):
+    def __init__(self):
+        self._db_path = 'test.db'
 
 
 @pytest_asyncio.fixture(scope='module')
 async def setup_db():
+    app.container.db_connection.override(
+        providers.Singleton(SqliteDatabaseStub)
+    )
     async with aiosqlite.connect('test.db') as db:
         await db.executescript(
             open('src/database/initial.sql', 'r', encoding='utf-8').read()
@@ -36,16 +42,6 @@ async def client():
         transport=ASGITransport(app=app), base_url='http://test'
     ) as ac:
         yield ac
-
-
-async def override_dependency():
-    async with aiosqlite.connect('test.db') as conn:
-        user_repo_adapter = SqliteUserAdapter(conn)
-        role_repo_adapter = SqliteRoleAdapter(conn)
-        yield UserService(user_repo_adapter, role_repo_adapter)
-
-
-app.dependency_overrides[get_user_service] = override_dependency
 
 
 async def test_get_user_by_id_success(setup_db, client):
