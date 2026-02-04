@@ -4,7 +4,7 @@ from typing import Annotated, List
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, HTTPException
 
-from src.app.user_service import UserService
+from src.app.user_service import UserUsecases
 from src.containers import Container
 from src.controller.dto import (
     UserCreateDTOInput,
@@ -25,7 +25,7 @@ router = APIRouter(prefix='/users')
 @inject
 async def create_user(
     user: UserCreateDTOInput,
-    service: Annotated[UserService, Depends(Provide[Container.user_svc])],
+    service: Annotated[UserUsecases, Depends(Provide[Container.user_svc])],
 ):
     try:
         domain_user = UserFactory.create(
@@ -54,7 +54,7 @@ async def create_user(
 @inject
 async def get_user(
     user_id: int,
-    service: Annotated[UserService, Depends(Provide[Container.user_svc])],
+    service: Annotated[UserUsecases, Depends(Provide[Container.user_svc])],
 ):
     try:
         user = await service.get_user_by_id(user_id)
@@ -72,7 +72,7 @@ async def get_user(
 @router.get('/', response_model=List[UserDTOOutput])
 @inject
 async def list_users(
-    service: Annotated[UserService, Depends(Provide[Container.user_svc])],
+    service: Annotated[UserUsecases, Depends(Provide[Container.user_svc])],
 ):
     try:
         users = await service.get_all_users()
@@ -87,7 +87,7 @@ async def list_users(
 @inject
 async def delete_user(
     user_id: int,
-    service: Annotated[UserService, Depends(Provide[Container.user_svc])],
+    service: Annotated[UserUsecases, Depends(Provide[Container.user_svc])],
 ):
     try:
         await service.delete_user(user_id)
@@ -106,7 +106,7 @@ async def delete_user(
 async def update_user(
     user_id: int,
     user_update: UserUpdateDTOInput,
-    service: Annotated[UserService, Depends(Provide[Container.user_svc])],
+    service: Annotated[UserUsecases, Depends(Provide[Container.user_svc])],
 ):
     try:
         user = UserFactory.create(

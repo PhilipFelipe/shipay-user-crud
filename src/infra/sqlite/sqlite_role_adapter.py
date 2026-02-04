@@ -7,8 +7,8 @@ from src.ports.role.role_repo import RoleRepo
 
 
 class SqliteRoleAdapter(RoleRepo):
-    def __init__(self, db_connection: Connection) -> None:
-        self.db_connection = db_connection
+    def __init__(self, db: Connection) -> None:
+        self.db_connection = db
 
     async def create_role(self, role: Role) -> None:
         query = """

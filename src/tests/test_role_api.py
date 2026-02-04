@@ -14,10 +14,12 @@ from src.main import app
 async def setup_db():
     async with aiosqlite.connect('test.db') as db:
         await db.executescript(
-            open('src/database/initial.sql', 'r', encoding='utf-8').read()
+            open(
+                'src/database/sqlite/initial.sql', 'r', encoding='utf-8'
+            ).read()
         )
         await db.executescript(
-            open('src/database/test.sql', 'r', encoding='utf-8').read()
+            open('src/database/sqlite/test.sql', 'r', encoding='utf-8').read()
         )
         await db.commit()
 

@@ -1,39 +1,46 @@
 from http import HTTPStatus
 
-import aiosqlite
 import pytest_asyncio
 from dependency_injector import providers
 from httpx import ASGITransport, AsyncClient
 
-from src.infra.sqlite.db import SqliteDatabase
+# from src.infra.sqlite.db import SqliteDatabase
+from src.infra.postgres.db import PostgresDatabase
 from src.main import app
 
-
-class SqliteDatabaseStub(SqliteDatabase):
-    def __init__(self):
-        self._db_path = 'test.db'
+# class SqliteDatabaseStub(SqliteDatabase):
+#     def __init__(self):
+#         self._db_path = 'test.db'
 
 
 @pytest_asyncio.fixture(scope='module')
 async def setup_db():
-    app.container.db_connection.override(
-        providers.Singleton(SqliteDatabaseStub)
+    app.container.config.postgres()['db'] = 'tmp1'
+    app.container.db.override(
+        providers.Singleton(
+            PostgresDatabase, **app.container.config.postgres()
+        )
     )
-    async with aiosqlite.connect('test.db') as db:
-        await db.executescript(
-            open('src/database/initial.sql', 'r', encoding='utf-8').read()
-        )
-        await db.executescript(
-            open('src/database/test.sql', 'r', encoding='utf-8').read()
-        )
-        await db.commit()
+    db: PostgresDatabase = app.container.db()
+    async with db.connection() as aconn:
+        async with aconn.cursor() as acur:
+            await acur.execute(
+                open(
+                    'src/database/pg/initial.sql', 'r', encoding='utf-8'
+                ).read()
+            )
+            await acur.execute(
+                open('src/database/pg/test.sql', 'r', encoding='utf-8').read()
+            )
+        await aconn.commit()
 
     yield
 
-    async with aiosqlite.connect('test.db') as db:
-        await db.execute('DROP TABLE IF EXISTS users;')
-        await db.execute('DROP TABLE IF EXISTS roles;')
-        await db.commit()
+    async with db.connection() as aconn:
+        async with aconn.cursor() as acur:
+            await acur.execute('DROP TABLE IF EXISTS users;')
+            await acur.execute('DROP TABLE IF EXISTS roles;')
+        await aconn.commit()
 
 
 @pytest_asyncio.fixture

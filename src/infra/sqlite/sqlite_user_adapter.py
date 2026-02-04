@@ -1,14 +1,13 @@
 from typing import List, Optional
 
-from aiosqlite import Connection
-
 from src.domain.user.entity import User, UserFactory
+from src.infra.sqlite.db import SqliteDatabase
 from src.ports.user.user_repo import UserRepo
 
 
 class SqliteUserAdapter(UserRepo):
-    def __init__(self, db_connection: Connection) -> None:
-        self.db_connection = db_connection
+    def __init__(self, db: SqliteDatabase) -> None:
+        self.db = db
 
     async def create_user(self, user: User) -> None:
         query = """
@@ -17,7 +16,7 @@ class SqliteUserAdapter(UserRepo):
             )
             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         """
-        async with self.db_connection() as conn:
+        async with self.db.connection() as conn:
             await conn.execute(
                 query, (user.name, user.email, user.password, user.role_id)
             )
@@ -27,7 +26,7 @@ class SqliteUserAdapter(UserRepo):
         query = """
             SELECT id, name, email, role_id FROM users
         """
-        async with self.db_connection() as conn:
+        async with self.db.connection() as conn:
             cursor = await conn.execute(query)
             rows = await cursor.fetchall()
 
@@ -46,7 +45,7 @@ class SqliteUserAdapter(UserRepo):
         query = """
             SELECT id, name, email, role_id FROM users WHERE id = ?
         """
-        async with self.db_connection() as conn:
+        async with self.db.connection() as conn:
             cursor = await conn.execute(query, (user_id,))
             row = await cursor.fetchone()
             if not row:
@@ -61,7 +60,7 @@ class SqliteUserAdapter(UserRepo):
 
     async def delete_user(self, user_id: int) -> bool:
         query = 'DELETE FROM users WHERE id = ?'
-        async with self.db_connection() as conn:
+        async with self.db.connection() as conn:
             cursor = await conn.execute(query, (user_id,))
             await conn.commit()
             return not cursor.rowcount == 0
@@ -87,7 +86,7 @@ class SqliteUserAdapter(UserRepo):
             WHERE id = ?
             RETURNING id, name, email, role_id
         """
-        async with self.db_connection() as conn:
+        async with self.db.connection() as conn:
             cursor = await conn.execute(
                 query,
                 (*values, user_id),
@@ -106,7 +105,7 @@ class SqliteUserAdapter(UserRepo):
 
     async def get_user_by_email(self, email: str) -> User | None:
         query = 'SELECT id, name, email, role_id FROM users WHERE email = ?'
-        async with self.db_connection() as conn:
+        async with self.db.connection() as conn:
             cursor = await conn.execute(query, (email,))
             row = await cursor.fetchone()
             if not row:
